@@ -1,0 +1,24 @@
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  job:
+    if: contains(join(github.event.issue.labels.*.name, ' '), '不具合')
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ASSIGNEE: "RyoIshikawa-h"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assign issue to ASSIGNEE
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          gh issue edit "$ISSUE_NUMBER" --add-assignee "$ASSIGNEE"
+      - name: Comment on issue
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          gh issue comment "$ISSUE_NUMBER" --body "@$ASSIGNEE was assigned to this issue."
